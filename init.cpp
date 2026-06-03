@@ -7,6 +7,81 @@
 #include <cstring>
 #include<iostream>
 using namespace std;
+// 创建CGoods类
+// 普通成员方法： 编译器会添加一个this形参变量
+// 属于类的作用域
+// 调用该方法时，需要以来一个对象   常对象时无法调用的 实参 const Goods* 形参 CGoods * this
+// 可以任意访问对象的私有成员变量  protected 继
+// static 静态成员变量  不会生成this形参
+// 1. 属于类的作用域
+// 2. 用类名调用方法
+// 3. 可以任意访问对象的私有成员，仅限于不依赖对象的成员，只能调用其他的static静态成员
+/**
+ * const成员方法 const CGoods *this
+ * 属于类的作用域
+ * 调用依赖一个对象，普通对象或者常对象都可以
+ * 可以任意访问对象的私有成员，但是只能读而不能写
+ */
+class Date {
+public:
+    Date(int y,int m,int d):_year(y),_month(m),_day(d) {
+    }
+    void show() {
+        cout << _year << "/" << _month << "/" << _day << endl;
+    }
+    void show() const {
+        cout << _year << "/" << _month << "/" << _day << endl;
+    }
+private:
+    int _year;
+    int _month;
+    int _day;
+};
+class CGoods {
+public:
+    CGoods(const char *str,int a,double p,int y,int m,int d):_date(y,m,d),_amount(a),_price(p) {
+        strcpy(_name,str);
+        _count++;
+    }
+    // 普通成员方法： 可以修改对象的成员变量
+    void show() {
+        cout << this <<"  CGoods" <<  endl;
+        cout << "name " << _name <<  endl;
+        cout << "_amount " << _amount <<  endl;
+        cout << "_price " << _price << endl;
+        _date.show();
+    }
+    // 只要是只读操作的成员方法，一律实现成const常成员方法
+    // 常成员方法： 不能修改对象的成员变量
+    void show() const { // const CGoods *this
+        cout << this <<"  CGoods" <<  endl;
+        cout << "name " << _name <<  endl;
+        cout << "_amount " << _amount <<  endl;
+        cout << "_price " << this->_price << endl;
+        _date.show();
+    }
+    static void show_count() {
+        cout << "count " << _count << endl;
+    }
+private:
+    char _name[20];
+    Date _date;
+    int _amount;
+    int _price;
+    static int _count;
+};
+int CGoods::_count = 0;
+int main() {
+    CGoods goods1("apple",100,100,2026,5,29);
+    CGoods goods2("apple",100,100,2026,5,29);
+    CGoods goods3("apple",100,100,2026,5,29);
+    goods1.show();
+    goods2.show();
+    goods3.show();
+    CGoods::show_count();
+    const CGoods goods4("非卖品",100,100,2026,5,29);
+    goods4.show(); // CGoods::show(&goods4)  const CGood * goods <== CGoods *this 所以修改show方法，在调用的时候穿进去一个const CGoods *this
+}
 // 循环队列
 class Queue {
     
@@ -141,6 +216,7 @@ private:
     }
 };
 
+#if 0
 int main() {
     // 构造函数：定义对象时，自动调用的，可以重载，构造完成，对象产生了
     // 析构函数：不带参数，不能重载，只有一个析构函数，析构完成，对象就不存在了
@@ -174,3 +250,4 @@ int main() {
     String str4 = str3; // 调用拷贝构造
     str1 = str2;
 }
+#endif
