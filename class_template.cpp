@@ -4,7 +4,7 @@
 #include<iostream>
 using namespace std;
 template <class T>
-class Allocator {
+class  Allocator {
 public:
     // size_t 类型表示的是 无符号整数类型
     T* allocate(size_t size) {
@@ -22,11 +22,10 @@ public:
         p->~T();
     }
 };
-template<typename T,typename Alloc = Allocator<T> >
 // 空间配置器
 // 容器的空间配置器
 // 内存开辟，释放 对象 构造 析构
-
+template<typename T,typename Alloc = Allocator<T>>
 class vector {
 private:
     T *_first; // 表示的是数组第一个元素的位置指针
@@ -135,6 +134,34 @@ public:
     int size() const {
         return _last - _first;
     }
+    T& operator[](int i){
+        if (i < 0 || i >= size()) {
+            throw "index out of range error";
+        }
+        return _first[i];
+    }
+    // 迭代器一般实现成容器的嵌套类型
+    class iterator {
+    public:
+        iterator(T *ptr = nullptr):_ptr(ptr) {}
+        bool operator!=(const iterator &it) const {
+            return _ptr != it._ptr;
+        }
+         T& operator*(){
+            return *_ptr;
+        }
+        const T& operator*() const {
+            return *_ptr;
+        }
+        // 前置++
+        void operator++() {
+            _ptr++;
+        }
+    private:
+        T *_ptr;
+    };
+    iterator begin() {return iterator(_first);}
+    iterator end() {return iterator(_last);}
 };
 class Test {
 public:
@@ -150,14 +177,27 @@ public:
     }
 };
 int main() {
-    Test t1,t2,t3;
-    cout << "---------------------------------"<< endl;
-    vector<Test> vec;
-    vec.push_back(t1);
-    vec.push_back(t2);
-    vec.push_back(t3);
-    cout << "----------------------------------"<< endl;
-    vec.pop_back(); // 只析构对象
-    cout << "-----------------------------------"<< endl;
+    // Test t1,t2,t3;
+    // cout << "---------------------------------"<< endl;
+    // vector<Test> vec;
+    // vec.push_back(t1);
+    // vec.push_back(t2);
+    // vec.push_back(t3);
+    // cout << "----------------------------------"<< endl;
+    // vec.pop_back(); // 只析构对象
+    // cout << "-----------------------------------"<< endl;
+    vector<int> vec;
+    for (int i = 0;i < 20;i++) {
+        vec.push_back(i);
+    }
+    vector<int>::iterator it = vec.begin();
+    for (;it != vec.end(); ++it) {
+        cout << *it << endl;
+    }
+    int size = vec.size();
+    for (int i = 0;i < size;i++) {
+        cout << vec[i] << endl;
+    }
+    cout << vec[10] << endl; //O(1) 内存是连续的
     return 0;
 }
